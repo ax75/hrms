@@ -119,7 +119,60 @@ const lastLogTime = computed(() => {
 const submitLog = (logType) => {
 	const action = logType === "IN" ? "Check-in" : "Check-out"
 
-	checkins.insert.submit(
+	const successCallback = (pos) => {
+        	
+        	const map_url = "http://maps.google.com/maps?z=12&t=m&q=loc:" + pos.coords.latitude + "+" + pos.coords.longitude;
+
+		checkins.insert.submit(
+                {
+                        employee: employee.data.name,
+                        log_type: logType,
+                        time: checkinTimestamp.value,
+			device_id: map_url,
+                },
+                {
+                        onSuccess() {
+                                modalController.dismiss()
+                                toast({
+                                        title: "Success",
+                                        text: `${action} successful!`,
+                                        icon: "check-circle",
+                                        position: "bottom-center",
+                                        iconClasses: "text-green-500",
+                                })
+                        },
+                        onError() {
+                                toast({
+                                        title: "Error",
+                                        text: `${action} failed!`,
+                                        icon: "alert-circle",
+                                        position: "bottom-center",
+                                        iconClasses: "text-red-500",
+                                })
+                        },
+                }
+        	)
+
+    	
+	};
+    	const errorCallback = (err) => {
+
+		toast({
+                        title: "Error",
+                        text: `${err.message} failed!`,
+                        icon: "alert-circle",
+                        position: "bottom-center",
+                        iconClasses: "text-red-500",
+                      })
+
+
+    	};
+
+	navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+
+
+
+	/*checkins.insert.submit(
 		{
 			employee: employee.data.name,
 			log_type: logType,
@@ -146,7 +199,7 @@ const submitLog = (logType) => {
 				})
 			},
 		}
-	)
+	)*/
 }
 
 onMounted(() => {
