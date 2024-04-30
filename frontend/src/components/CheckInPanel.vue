@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col bg-white rounded w-full py-6 px-4 border-none">
 		<h2 class="text-lg font-bold text-gray-900">
-			Hey, {{ employee?.data?.first_name }} 👋
+			Welcome, {{ employee?.data?.first_name }} 👋
 		</h2>
 
 		<template v-if="allowCheckinFromMobile.data">
@@ -10,8 +10,8 @@
 			</div>
 			<Button
 				class="mt-4 mb-1 drop-shadow-sm py-5 text-base"
-				id="open-checkin-modal"
-				@click="checkinTimestamp = dayjs().format('YYYY-MM-DD HH:mm:ss')"
+				id="open-checkin-modals"
+				@click="init_submitLog(nextAction.action, nextAction.label)"
 			>
 				<template #prefix>
 					<FeatherIcon
@@ -33,7 +33,7 @@
 
 	<ion-modal
 		ref="modal"
-		trigger="open-checkin-modal"
+		trigger="open-checkin-modals"
 		:initial-breakpoint="1"
 		:breakpoints="[0, 1]"
 	>
@@ -70,7 +70,7 @@ const DOCTYPE = "Employee Checkin"
 const socket = inject("$socket")
 const employee = inject("$employee")
 const dayjs = inject("$dayjs")
-const checkinTimestamp = ref(null)
+var checkinTimestamp = ref(null)
 
 const checkins = createListResource({
 	doctype: DOCTYPE,
@@ -115,6 +115,15 @@ const lastLogTime = computed(() => {
 
 	return `${formattedTime} on ${dayjs(timestamp).format("D MMM, YYYY")}`
 })
+
+const init_submitLog = (logType, logType_label) => {
+	checkinTimestamp = dayjs().format('YYYY-MM-DD HH:mm:ss')
+	// console.log(logType, logType_label)
+	if(confirm("Do you want to " + logType_label + " at " + dayjs(checkinTimestamp).format("hh:mm:ss a"))){
+		submitLog(logType)
+	}
+
+}
 
 const submitLog = (logType) => {
 	const action = logType === "IN" ? "Check-in" : "Check-out"
